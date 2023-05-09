@@ -102,15 +102,7 @@
     <div class="lg:w-1/3 p-10 w-full">
       <h2 class="text-2xl font-bold mb-4 text-primary">Write a Review</h2>
       <form @submit.prevent="submitReview">
-        <div class="mb-4">
-          <label for="email" class="text-primary">Your Email</label>
-          <input
-            type="email"
-            id="email"
-            v-model="newReview.email"
-            class="mt-2 block w-full rounded-md bg-gray-100 bg-opacity-70 border-transparent focus:border-primary focus:bg-white focus:ring-0 px-4 py-3 text-lg"
-          />
-        </div>
+       
         <div class="mb-4">
           <label for="content" class="text-primary">Review</label>
           <textarea
@@ -123,6 +115,7 @@
         <button
           type="submit"
           class="px-4 py-2 bg-primary text-white font-medium rounded"
+          
         >
           Submit Review
         </button>
@@ -291,6 +284,7 @@ const fetchProductData = async () => {
   }
 };
 
+
 const addToCart = async () => {
   const url = 'http://localhost/Tunezz/Tunezz/APIs/appfunctions/add_cart.php';
   
@@ -311,7 +305,49 @@ const addToCart = async () => {
     console.error('Error:', error);
   }
 };
+const submitReview = async () => {
+  const url = 'http://localhost/Tunezz/Tunezz/APIs/appfunctions/Add_review.php';
+  
+  const email = userEmail.value;
+  const itemName = product.name;
+  const review= newReview.value.content;
+  const data = {
+    // cartadd: true,
+    email: email,
+    instrument_name: itemName,
+    review: review,
+  };
+  console.log("Data to be sent:", data);
 
+  try {
+    const response = await axios.post(url, new URLSearchParams(data));
+    console.log("Response:", response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+// const submitReview = async () => {
+//   try {
+//     const response = await axios.post("http://localhost/Tunezz/Tunezz/APIs/appfunctions/Add_review.php", {
+//       email: userEmail.value,
+//       instrument_name: product.name,
+     
+//       review: newReview.value.content,
+//     });
+//     console.log("bro lek",email,instrument_name);
+//     console.log("Response:", response.data);
+//     reviews.value.push({
+//       email:userEmail.value,
+//       review: newReview.value.content,
+//       instrument_name: product.name
+//     });
+//     newReview.value.email = "";
+//     newReview.value.rating = 0;
+//     newReview.value.content = "";
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// };
 
 // onMounted(fetchProductData)
 
@@ -323,11 +359,20 @@ const handleAddToCart = () => {
   addToCart();
 };
 
+
 onMounted(async () => {
   await fetchProductData();
   await fetchUserEmail();
   await fetchReviews();
 });
+// return {
+//       product,
+//       userEmail,
+//       reviews,
+//       newReview,
+//       submitReview,
+//       addToCart,
+//     };
 
 
 </script>
