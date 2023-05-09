@@ -10,7 +10,7 @@ if (!$conn) {
 }
 
 // Add review function
-function addReview($instrument_name, $email, $rating, $review) {
+function addReview($instrument_name, $email, $review) {
   global $conn;
   
 
@@ -22,7 +22,7 @@ function addReview($instrument_name, $email, $rating, $review) {
     return "User has already reviewed this instrument.";
   } else {
     // Insert new review and rating
-    $insert_query = "INSERT INTO reviews (email, instrument_name, rating, review) VALUES ('$email', '$instrument_name', $rating, '$review')";
+    $insert_query = "INSERT INTO reviews (email, instrument_name, review) VALUES ('$email', '$instrument_name', '$review')";
 
     if (mysqli_query($conn, $insert_query)) {
       return "Review added successfully.";
@@ -37,11 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // Get request body parameters
   $instrument_name = $_POST['instrument_name'];
   $email = $_POST['email'];
-  $rating = $_POST['rating'];
   $review = $_POST['review'];
 
   // Call addReview function and send response
-  $response = addReview($instrument_name, $email, $rating, $review);
+  $response = addReview($instrument_name, $email, $review);
   echo $response;
 }
 
