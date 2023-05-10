@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 
 import {
   Dialog,
@@ -9,35 +9,34 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 
-const products = reactive([
-  {
-    id: 1,
-    name: "Throwback Hip Bag",
-    href: "#",
-    color: "Salmon",
-    price: "$90.00",
-    quantity: 1,
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg",
-    imageAlt:
-      "Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.",
-  },
-  {
-    id: 2,
-    name: "Medium Stuff Satchel",
-    href: "#",
-    color: "Blue",
-    price: "$32.00",
-    quantity: 1,
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg",
-    imageAlt:
-      "Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.",
-  },
-  // More products...
-]);
-
 const cartOpen = ref(false);
+const products = reactive([]);
+
+const fetchCartData = async (email) => {
+  try {
+    const response = await fetch(
+      `http://localhost/Tunezz/Tunezz/APIs/appfunctions/get_cart.php?email=${email}`
+    );
+    const data = await response.json();
+    console.log(data);
+    products.value = data.map((item) => ({
+      ...item,
+      imageSrc: "http://localhost/Tunezz/Tunezz/src/assets/" + item.pic, // Replace with actual image path
+      imageAlt: 'Product image', // Replace with actual image description
+      // color: 'Color', // Replace with actual color attribute if available
+      id: item.name, // Replace with a unique identifier if available
+      // href: 'path/to/product', // Replace with actual product link
+      quantity: 1, // Add a default quantity, or use actual value if available
+    }));
+    console.log("lek",products);
+  } catch (error) {
+    console.error('Error fetching cart data:', error);
+  }
+};
+
+onMounted(() => {
+  fetchCartData('mohamad.yateem@lau.edu'); // Replace with the user's email
+});
 
 const incrementQuantity = (product) => {
   product.quantity++;
@@ -52,9 +51,9 @@ const decrementQuantity = (product) => {
 const calculateTotal = () => {
   let total = 0;
   products.forEach((product) => {
-    total += parseFloat(product.price.replace("$", "")) * product.quantity;
+    total += parseFloat(product.price.replace('$', '')) * product.quantity;
   });
-  return "$" + total.toFixed(2);
+  return '$' + total.toFixed(2);
 };
 
 const removeProduct = (product) => {
@@ -166,15 +165,63 @@ const slides = [
           </button>
 
           <!-- Profile dropdown -->
-          <router-link to="/account" class="relative ml-3 z-50">
+          <Menu as="div" class="relative ml-3 z-50">
             <div>
-              <img
-                class="h-8 w-8 rounded-full hover:ring-2 hover:ring-offset-2 hover:ring-offset-primary hover:ring-white transition-all duration-200 ease-in-out"
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt=""
-              />
+              <MenuButton
+                class="flex rounded-full bg-primary text-sm focus:outline-none hover:ring-2 hover:ring-white p-1 transition-all duration-200 ease-in-out"
+              >
+                <span class="sr-only">Open user menu</span>
+                <img
+                  class="h-8 w-8 rounded-full"
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                  alt=""
+                />
+              </MenuButton>
             </div>
-          </router-link>
+            <transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <MenuItems
+                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+              >
+                <MenuItem v-slot="{ active }">
+                  <a
+                    href="#"
+                    :class="[
+                      active ? 'bg-gray-100' : '',
+                      'block px-4 py-2 text-sm text-gray-700',
+                    ]"
+                    >Your Profile</a
+                  >
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <a
+                    href="#"
+                    :class="[
+                      active ? 'bg-gray-100' : '',
+                      'block px-4 py-2 text-sm text-gray-700',
+                    ]"
+                    >Settings</a
+                  >
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <a
+                    href="#"
+                    :class="[
+                      active ? 'bg-gray-100' : '',
+                      'block px-4 py-2 text-sm text-gray-700',
+                    ]"
+                    >Sign out</a
+                  >
+                </MenuItem>
+              </MenuItems>
+            </transition>
+          </Menu>
         </div>
       </div>
     </div>
@@ -214,7 +261,7 @@ const slides = [
           class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"
         />
       </TransitionChild>
-
+<!-- cart start -->
       <div class="fixed inset-0 overflow-hidden">
         <div class="absolute inset-0 overflow-hidden">
           <div
@@ -254,7 +301,7 @@ const slides = [
                       <div class="flow-root">
                         <ul role="list" class="-my-6 divide-y divide-gray-200">
                           <li
-                            v-for="product in products"
+                            v-for="product in products.value"
                             :key="product.id"
                             class="flex py-6"
                           >
@@ -273,21 +320,21 @@ const slides = [
                                 <div
                                   class="flex justify-between text-base font-medium text-gray-900 border-b border-gray-200 pb-1"
                                 >
-                                  <h3>
+                                  <!-- <h3>
                                     <a
                                       :href="product.href"
                                       class="text-tertiary hover:underline"
                                     >
                                       {{ product.name }}
                                     </a>
-                                  </h3>
+                                  </h3> -->
                                   <p class="ml-4 text-tertiary">
                                     {{ product.price }}
                                   </p>
                                 </div>
-                                <p class="mt-1 text-sm text-white">
+                                <!-- <p class="mt-1 text-sm text-white">
                                   {{ product.color }}
-                                </p>
+                                </p> -->
                               </div>
                               <div
                                 class="flex flex-1 items-end justify-between text-sm"
@@ -351,6 +398,7 @@ const slides = [
           </div>
         </div>
       </div>
+      <!-- cart end -->
     </Dialog>
   </TransitionRoot>
 </template>
